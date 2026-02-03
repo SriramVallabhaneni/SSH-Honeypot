@@ -15,6 +15,8 @@ logger.addHandler(handler)
 
 KEY_FILE = "server.key"
 
+semaphore = threading.Semaphore(50)
+
 class SSH_Server(paramiko.ServerInterface):
     def __init__(self, client_addr):
         self.client_addr = client_addr
@@ -26,13 +28,7 @@ class SSH_Server(paramiko.ServerInterface):
     def check_auth_publickey(self, username, key):
         return paramiko.AUTH_FAILED
 
-
-def handle_connection(client_sock, server_key, client_addr):
-    transport = paramiko.Transport(client_sock)
-    transport.add_server_key(server_key)
-    ssh = SSH_Server(client_addr)
-    transport.start_server(server=ssh)
-
+# keeps same server key, generates server key if not already created
 def key_handling():
     if not os.path.exists(KEY_FILE):
         server_key = paramiko.RSAKey.generate(2048)
@@ -42,6 +38,21 @@ def key_handling():
         server_key = paramiko.RSAKey(filename=KEY_FILE)
         logger.info("Loaded existing SSH host key")
     return server_key
+
+# limits to 50 connections
+def handle_connection(client_sock, server_key, client_addr):
+    with semaphore:
+        try:
+            transport = paramiko.Transport(client_sock)
+            transport.local_version = "SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5"
+            transport.add_server_key(server_key)
+            ssh = SSH_Server(client_addr)
+            transport.start_server(server=ssh)
+            transport.accept(5)
+        except Exception as e:
+            logger.warning(f"{client_addr[0]}:{client_addr[1]} - {e}")
+        finally:
+            client_sock.close()
 
 def main():
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -54,7 +65,7 @@ def main():
     while True:
         client_sock, client_addr = server_sock.accept()
         logger.info(f"Connection: {client_addr[0]}:{client_addr[1]}")
-        t = threading.Thread(target=handle_connection, args = (client_sock, server_key, client_addr))
+        t = threading.Thread(target=handle_connection, args = (client_sock, server_key, client_addr), daemon=True)
         t.start()
 
 
