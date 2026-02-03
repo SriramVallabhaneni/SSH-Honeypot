@@ -3,6 +3,7 @@ import paramiko
 import threading
 import logging
 from logging.handlers import RotatingFileHandler
+import os
 
 # rotating logs with 3 backups
 logger = logging.getLogger("honeypot")
@@ -11,6 +12,8 @@ handler = RotatingFileHandler(filename="test.log", maxBytes=1024*5, backupCount=
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+KEY_FILE = "server.key"
 
 class SSH_Server(paramiko.ServerInterface):
     def __init__(self, client_addr):
@@ -30,6 +33,15 @@ def handle_connection(client_sock, server_key, client_addr):
     ssh = SSH_Server(client_addr)
     transport.start_server(server=ssh)
 
+def key_handling():
+    if not os.path.exists(KEY_FILE):
+        server_key = paramiko.RSAKey.generate(2048)
+        server_key.write_private_key_file(KEY_FILE)
+        logger.info("Generated new SSH host key")
+    else:
+        server_key = paramiko.RSAKey(filename=KEY_FILE)
+        logger.info("Loaded existing SSH host key")
+    return server_key
 
 def main():
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,9 +49,7 @@ def main():
     server_sock.bind(('0.0.0.0', 2222)) # for security reasons default ssh port 22 won't be used for lab purposes
     server_sock.listen(100)
 
-
-    server_key = paramiko.RSAKey.generate(2048)
-
+    server_key = key_handling()
 
     while True:
         client_sock, client_addr = server_sock.accept()
