@@ -1,11 +1,19 @@
 import socket
 import paramiko
 import threading
+import logging
+from logging.handlers import RotatingFileHandler
 
+# rotating logs with 3 backups
+logger = logging.getLogger("honeypot")
+logger.setLevel(level=logging.INFO)
+handler = RotatingFileHandler(filename="test.log", maxBytes=1024*5, backupCount=3)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
 
 class SSH_Server(paramiko.ServerInterface):
     def check_auth_password(self, username, password):
-        print(f"{username}:{password}")
+        logger.info(f"{username}:{password}")
         return paramiko.AUTH_FAILED
 
 
