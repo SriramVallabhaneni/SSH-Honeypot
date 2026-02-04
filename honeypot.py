@@ -48,6 +48,8 @@ def handle_connection(client_sock, server_key, client_addr):
             transport.add_server_key(server_key)
             ssh = SSH_Server(client_addr)
             transport.start_server(server=ssh)
+            client_banner=transport.remote_version
+            logger.info(f"IP={client_addr[0]} CLIENT_BANNER={client_banner}")
             transport.accept(5)
         except Exception as e:
             logger.warning(f"{client_addr[0]}:{client_addr[1]} - {e}")
@@ -62,11 +64,16 @@ def main():
 
     server_key = key_handling()
 
-    while True:
-        client_sock, client_addr = server_sock.accept()
-        logger.info(f"Connection: {client_addr[0]}:{client_addr[1]}")
-        t = threading.Thread(target=handle_connection, args = (client_sock, server_key, client_addr), daemon=True)
-        t.start()
+    try:
+        while True:
+            client_sock, client_addr = server_sock.accept()
+            logger.info(f"Connection: {client_addr[0]}:{client_addr[1]}")
+            t = threading.Thread(target=handle_connection, args = (client_sock, server_key, client_addr), daemon=True)
+            t.start()
+    except KeyboardInterrupt:
+        logger.info("Honeypot shutting down")
+    finally:
+        server_sock.close()
 
 
 if __name__ == "__main__":
