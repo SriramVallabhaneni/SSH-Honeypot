@@ -98,7 +98,7 @@ def handle_connection(client_sock, server_key, client_addr):
 def main():
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_sock.bind(('0.0.0.0', 2222)) # for security reasons default ssh port 22 won't be used for lab purposes
+    server_sock.bind(('0.0.0.0', 22)) # make sure to change default ssh port to something else
     server_sock.listen(100)
 
     server_key = key_handling()
