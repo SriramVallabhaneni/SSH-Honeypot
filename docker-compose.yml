@@ -31,5 +31,16 @@ services:
     depends_on:
       - exporter
 
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
 volumes:
   prometheus-data:
+  grafana-data: 
