@@ -6,6 +6,7 @@ from logging.handlers import RotatingFileHandler
 import os
 import json
 import time
+from geoip import get_location
 
 # rotating logs with 3 backups
 logger = logging.getLogger("honeypot")
@@ -73,11 +74,16 @@ def handle_connection(client_sock, server_key, client_addr):
 
         finally:
             duration = round(time.time() - start_time, 2)
+            location = get_location(client_addr[0])
 
             record = {
                 "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "ip": client_addr[0],
                 "port": client_addr[1],
+                "country": location['country'] if location else "Unknown",
+                "city": location['city'] if location else "Unknown",
+                "lat": location['lat'] if location else 0,
+                "lon": location['lon'] if location else 0,
                 "client_banner": client_banner,
                 "auth_attempts": len(ssh.auth_attempts) if ssh else 0,
                 "credentials": ssh.auth_attempts if ssh else [],
