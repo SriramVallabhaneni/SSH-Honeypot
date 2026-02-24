@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY honeypot.py .
 COPY exporter.py .
+COPY geoip.py .
 
 RUN mkdir /data && chown -R honeypot:honeypot /data
 
