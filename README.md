@@ -49,13 +49,13 @@ Internet Traffic
 | `geoip.py` | Geolocation module that queries ip-api.com to resolve attacker IPs to country, city, and coordinates. Includes in-memory caching to respect API rate limits |
 | `exporter.py` | Prometheus metrics exporter that parses the JSON log file and exposes attack metrics on port 8000 |
 | Prometheus | Scrapes the exporter every 15 seconds and stores time series metrics |
-| Grafana | Visualizes metrics in real-time dashboards including time series graphs and a world map of attack origins |
+| Grafana | Visualizes metrics in real-time dashboards including time series graphs and a table of attack origins |
 
 ## Features
 
 - Custom multi-threaded SSH server with semaphore-based concurrency (up to 50 simultaneous sessions)
 - Captures attacker IP, credentials attempted, SSH client banner, connection duration, and geolocation
-- Real-time Grafana dashboards showing total attempts, unique attacker IPs, credential patterns, and attack origins on a world map
+- Real-time Grafana dashboards showing total attempts, unique attacker IPs, credential patterns, and attack origins
 - Rotating file logging with structured JSON output for easy parsing
 - Fully containerized with Docker Compose for portable, reproducible deployment
 - Persistent storage for logs and Prometheus data across container restarts
