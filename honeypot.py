@@ -4,9 +4,9 @@ import threading
 import logging
 from logging.handlers import RotatingFileHandler
 import os
-import json
 import time
 from geoip import get_location
+from database import initialize_db, insert_record
 
 # rotating logs with 3 backups
 logger = logging.getLogger("honeypot")
@@ -18,9 +18,8 @@ logger.addHandler(handler)
 
 KEY_FILE = "/data/server.key"
 
-JSON_FILE = "/data/connections.jsonl"
-
 semaphore = threading.Semaphore(50)
+
 
 class SSH_Server(paramiko.ServerInterface):
     def __init__(self, client_addr):
@@ -44,12 +43,6 @@ def key_handling():
         server_key = paramiko.RSAKey(filename=KEY_FILE)
         logger.info("Loaded existing SSH host key")
     return server_key
-
-# handles recording attempt to json file
-def write_json_record(record):
-    with open(JSON_FILE, "a") as file:
-        file.write(json.dumps(record) + "\n")
-        file.flush()
 
 
 # limits to 50 connections
@@ -90,7 +83,7 @@ def handle_connection(client_sock, server_key, client_addr):
                 "duration": duration
             }
 
-            write_json_record(record)
+            insert_record(record)
 
             if transport:
                 try:
@@ -102,6 +95,8 @@ def handle_connection(client_sock, server_key, client_addr):
 
 
 def main():
+    initialize_db()
+
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_sock.bind(('0.0.0.0', 22)) # make sure to change default ssh port to something else

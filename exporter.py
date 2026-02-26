@@ -1,9 +1,6 @@
-import json
 import time
-import os
+from database import query_total_attempts, query_unique_ips, query_total_credentials, query_attempts_by_location 
 from prometheus_client import start_http_server, Gauge
-
-JSONL_FILE = "/data/connections.jsonl"
 
 # Define metrics
 total_attempts = Gauge('honeypot_total_attempts', 'Total number of connection attempts')
@@ -15,45 +12,19 @@ attempts_by_location = Gauge(
     ['ip', 'country', 'city', 'lat', 'lon']
 )
 
-def parse_logs():
-    if not os.path.exists(JSONL_FILE):
-        return []
-    with open(JSONL_FILE, 'r') as f:
-        return [json.loads(line) for line in f if line.strip()]
-
 def update_metrics():
-    records = parse_logs()
-    ips = set()
-    cred_count = 0
-    ip_counts = {}
-
-    for r in records:
-        ips.add(r['ip'])
-        cred_count += len(r['credentials'])
-
-        ip = r['ip']
-        if ip not in ip_counts:
-            ip_counts[ip] = {
-                'count': 0,
-                'country': r.get('country', 'Unknown'),
-                'city': r.get('city', 'Unknown'),
-                'lat': str(r.get('lat', 0)),
-                'lon': str(r.get('lon', 0))
-            }
-        ip_counts[ip]['count'] += 1
-
-    total_attempts.set(len(records))
-    unique_ips.set(len(ips))
-    total_credentials.set(cred_count)
-
-    for ip, data in ip_counts.items():
-         attempts_by_location.labels(
-             ip=ip,
-             country=data['country'],
-             city=data['city'],
-             lat=data['lat'],
-             lon=data['lon']
-             ).set(data['count'])
+    total_attempts.set(query_total_attempts())
+    unique_ips.set(query_unique_ips())
+    total_credentials.set(query_total_credentials())
+    
+    for row in query_attempts_by_location():
+        attempts_by_location.labels(
+            ip=row['ip'],
+            country=row['country'],
+            city=row['city'],
+            lat=str(row['lat']),
+            lon=str(row['lon'])
+        ).set(row['attempts'])
 
 if __name__ == "__main__":
     start_http_server(8000)
