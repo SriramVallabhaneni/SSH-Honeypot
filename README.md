@@ -14,32 +14,35 @@ This project simulates an SSH server to attract and log automated attack attempt
 ```
 Internet Traffic
       │
-      ▼
-┌─────────────┐     writes      ┌──────────────────┐
-│  Honeypot   │ ─────────────▶  │  connections.db   │
-│ (Port 22)   │                 │    (SQLite)        │
-└─────────────┘                 └──────────────────┘
-                                         │
-                                         │ queries
-                                         ▼
-                                 ┌──────────────┐
-                                 │   Exporter   │
-                                 │  (Port 8000) │
-                                 └──────────────┘
-                                         │
-                                         │ scrapes
-                                         ▼
-                                 ┌──────────────┐
-                                 │  Prometheus  │
-                                 │  (Port 9090) │
-                                 └──────────────┘
-                                         │
-                                         │ queries
-                                         ▼
-                                 ┌──────────────┐
-                                 │   Grafana    │
-                                 │  (Port 3000) │
-                                 └──────────────┘
+      v
+┌──────────────┐                              ┌──────────────┐
+│   Honeypot   │ ───────── writes ───────── > │ connections  │
+│  (Port 22)   │                              │  .db/SQLite  │
+└──────────────┘                              └──────────────┘
+                                                      │
+                                                   queries
+                                                      │
+                                                      v
+                                              ┌──────────────┐
+                                              │   Exporter   │
+                                              │  (Port 8000) │
+                                              └──────────────┘
+                                                      │
+                                                   scrapes
+                                                      │
+                                                      v
+                                              ┌──────────────┐
+                                              │  Prometheus  │
+                                              │  (Port 9090) │
+                                              └──────────────┘
+                                                      │
+                                                   queries
+                                                      │
+                                                      v
+                                              ┌──────────────┐
+                                              │   Grafana    │
+                                              │  (Port 3000) │
+                                              └──────────────┘
 ```
 
 ### Components
