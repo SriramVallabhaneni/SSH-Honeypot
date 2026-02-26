@@ -16,6 +16,8 @@ def update_metrics():
     total_attempts.set(query_total_attempts())
     unique_ips.set(query_unique_ips())
     total_credentials.set(query_total_credentials())
+
+    attempts_by_location.clear()
     
     for row in query_attempts_by_location():
         attempts_by_location.labels(
