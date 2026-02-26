@@ -19,26 +19,26 @@ Internet Traffic
 │   Honeypot   │ ───────── writes ───────── > │ connections  │
 │  (Port 22)   │                              │  .db/SQLite  │
 └──────────────┘                              └──────────────┘
+                                                      ^
                                                       │
                                                    queries
                                                       │
-                                                      v
                                               ┌──────────────┐
                                               │   Exporter   │
                                               │  (Port 8000) │
                                               └──────────────┘
+                                                      ^
                                                       │
                                                    scrapes
                                                       │
-                                                      v
                                               ┌──────────────┐
                                               │  Prometheus  │
                                               │  (Port 9090) │
                                               └──────────────┘
+                                                      ^
                                                       │
                                                    queries
                                                       │
-                                                      v
                                               ┌──────────────┐
                                               │   Grafana    │
                                               │  (Port 3000) │
