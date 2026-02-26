@@ -100,10 +100,10 @@ def query_attempts_by_location():
     conn, cursor = get_connection()
 
     cursor.execute('''
-                   SELECT ip, country, lat, lon, COUNT(*) as attempts
+                   SELECT ip, country, city, lat, lon, COUNT(*) as attempts
                    FROM connections
                    WHERE lat != 0 AND lon != 0
-                   GROUP BY ip, country, lat, lon
+                   GROUP BY ip, country, city, lat, lon
                    ''')
     results = cursor.fetchall()
     conn.close()
