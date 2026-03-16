@@ -108,9 +108,13 @@ docker-compose ps
 
 **5. Access Grafana**
 
-Navigate to `http://<your-server-ip>:3000` and log in with the default credentials (`admin` / `admin`). Add Prometheus as a data source using `http://prometheus:9090` and build your dashboards.
+Navigate to `http://<your-server-ip>:3000` and log in with the default credentials (`admin` / `admin`). Add Prometheus as a data source using `http://prometheus:9090`.
 
-**6. Migrate existing JSON data (optional)**
+**6. Import Dashboard**
+
+In Grafana go to **Dashboards** → **Import** → **Upload dashboard JSON file** and select `grafana/dashboards/honeypot-dashboard.json`. This will automatically recreate the full dashboard without manual setup.
+
+**7. Migrate existing JSON data (optional)**
 
 If you have existing `connections.jsonl` data to migrate into the database:
 ```bash
