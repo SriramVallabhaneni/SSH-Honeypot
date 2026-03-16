@@ -7,7 +7,7 @@ A cloud-deployed SSH honeypot that captures real-world brute force attempts from
 This project simulates an SSH server to attract and log automated attack attempts from across the internet. Rather than using an existing honeypot tool, the SSH server is programmed from scratch using Paramiko, giving full control over what gets captured and logged. Attack data is enriched with geolocation information, stored in a SQLite database, and fed into a Prometheus + Grafana monitoring stack for real-time visualization.
 
 ## Screenshots
-![Grafana Dashboard](screenshots/SSH-Honeypot-Grafana-Dashboard.png)
+![Grafana Dashboard](screenshots/SSH-Honeypot-Grafana-Dashboard-Updated.png)
 
 ## Architecture
 
